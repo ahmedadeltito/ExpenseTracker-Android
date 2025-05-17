@@ -46,6 +46,10 @@ class AddExpenseViewModel(
                 saveExpense()
             }
 
+            AddExpenseContract.Event.OnBackClick -> {
+                triggerSideEffect(AddExpenseContract.Effect.NavigateToBackScreen)
+            }
+
             AddExpenseContract.Event.OnDismissError -> {
                 setState {
                     copy(
@@ -123,7 +127,7 @@ class AddExpenseViewModel(
                 result.fold(
                     onSuccess = {
                         setState { copy(isLoading = false) }
-                        triggerSideEffect(AddExpenseContract.Effect.ShowSnackbar("Expense saved successfully"))
+                        triggerSideEffect(AddExpenseContract.Effect.ExpenseSavedSuccessfully)
                     },
                     onFailure = { exception ->
                         setState {

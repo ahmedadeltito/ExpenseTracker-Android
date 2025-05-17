@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination
 import com.ahmedadeltito.expensetracker.presentation.navigation.AppNavHost
+import com.ahmedadeltito.expensetracker.presentation.navigation.AppNavigator
 import com.ahmedadeltito.expensetracker.ui.theme.ExpenseTrackerTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,22 +24,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             ExpenseTrackerTheme {
                 val navController = rememberNavController()
+                val appNavigator = remember(navController) {
+                    AppNavigator(navController)
+                }
                 val snackbarHostState = remember { SnackbarHostState() }
-                // Later, you might provide AppNavigator/Coordinator via CompositionLocal here
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(snackbarHostState) }
                 ) { innerPadding ->
                     Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
+                        modifier = Modifier.fillMaxSize().padding(innerPadding),
                         color = MaterialTheme.colorScheme.background
                     ) {
                         AppNavHost(
-                            navController = navController,
+                            appNavigator = appNavigator,
                             snackbarHostState = snackbarHostState,
-                            startDestination = AppDestination.AddExpense.destination
+                            startDestination = AppDestination.ExpenseList.destination
                         )
                     }
                 }

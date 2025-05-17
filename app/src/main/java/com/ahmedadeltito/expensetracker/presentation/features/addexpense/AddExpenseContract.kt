@@ -30,7 +30,6 @@ object AddExpenseContract {
         val currencyCode: String = "USD", // Default currency
         val isLoading: Boolean = false,
         val error: String? = null,
-        // Field-specific errors for better UX
         val amountError: String? = null,
         val categoryError: String? = null,
         val currencyError: String? = null // Added currencyError
@@ -46,6 +45,7 @@ object AddExpenseContract {
         data class OnDateChange(val date: Date) : Event()
         data class OnCurrencyChange(val currency: String) : Event()
         data object OnSaveClick : Event()
+        data object OnBackClick : Event()
         data object OnDismissError : Event()
     }
 
@@ -53,6 +53,7 @@ object AddExpenseContract {
      * Side effects that the ViewModel can trigger for the Add Expense UI.
      */
     sealed class Effect : UiSideEffect {
-        data class ShowSnackbar(val message: String) : Effect()
+        data object NavigateToBackScreen : Effect()
+        data object ExpenseSavedSuccessfully : Effect()
     }
 }

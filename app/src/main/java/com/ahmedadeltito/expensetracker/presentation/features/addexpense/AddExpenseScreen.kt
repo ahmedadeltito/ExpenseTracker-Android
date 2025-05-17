@@ -15,11 +15,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -50,9 +52,6 @@ fun AddExpenseScreen(
     val calendar = Calendar.getInstance()
 
     // Date Picker Dialog state
-    val year = calendar.get(Calendar.YEAR)
-    val month = calendar.get(Calendar.MONTH)
-    val day = calendar.get(Calendar.DAY_OF_MONTH)
     calendar.time = state.date // Sync calendar with current state date
 
     val datePickerDialog = DatePickerDialog(
@@ -73,7 +72,14 @@ fun AddExpenseScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Add Expense") })
+            TopAppBar(
+                title = { Text("Add Expense") },
+                navigationIcon = {
+                    IconButton(onClick = { onEvent(AddExpenseContract.Event.OnBackClick) }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         Column(

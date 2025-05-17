@@ -1,6 +1,8 @@
 package com.ahmedadeltito.expensetracker.core.navigation
+
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
+import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination
 
 /**
  * Represents a command to navigate to a specific destination.
@@ -34,5 +36,5 @@ data class GoBackTo(
 ) : NavigationCommand
 
 object GoToHome : NavigationCommand {
-    override val destination = "home_route"
+    override val destination = AppDestination.ExpenseList.destination
 }
