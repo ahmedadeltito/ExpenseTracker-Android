@@ -51,7 +51,7 @@ abstract class BaseViewModel<S : UiState, E : UiEvent, F : UiSideEffect> : ViewM
      * Helper function to update the UiState.
      * It should be called from within viewModelScope or another coroutine.
      */
-    protected fun updateUiState(reducer: S.() -> S) {
+    protected fun setState(reducer: S.() -> S) {
         _uiState.value = uiState.value.reducer()
     }
 
@@ -59,7 +59,7 @@ abstract class BaseViewModel<S : UiState, E : UiEvent, F : UiSideEffect> : ViewM
      * Helper function to trigger a UiSideEffect.
      * It launches a new coroutine in viewModelScope to send the effect.
      */
-    protected fun onSideEffect(effect: F) {
+    protected fun triggerSideEffect(effect: F) {
         viewModelScope.launch {
             _sideEffect.send(effect)
         }
