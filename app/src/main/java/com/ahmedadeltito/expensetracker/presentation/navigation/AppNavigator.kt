@@ -1,6 +1,8 @@
 package com.ahmedadeltito.expensetracker.presentation.navigation
 
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
+import androidx.navigation.Navigator
 import com.ahmedadeltito.expensetracker.core.navigation.Coordinator
 import com.ahmedadeltito.expensetracker.core.navigation.GoBack
 import com.ahmedadeltito.expensetracker.core.navigation.NavigationCommand
@@ -32,14 +34,18 @@ class AppNavigator(
     private fun handleNavigationCommand(command: NavigationCommand) {
         when (command) {
             is AppDestination -> navController.navigate(command.destination)
-             is GoBack -> navigateBack()
+            is GoBack -> navigateBack()
             // Handle other generic commands from core.navigation
             else -> navController.navigate(command.destination)
         }
     }
 
     // Direct navigation methods from the Coordinator interface
-    override fun navigate(route: String, navOptions: androidx.navigation.NavOptions?, navigatorExtras: androidx.navigation.Navigator.Extras?) {
+    override fun navigate(
+        route: String,
+        navOptions: NavOptions?,
+        navigatorExtras: Navigator.Extras?
+    ) {
         navController.navigate(route, navOptions, navigatorExtras)
     }
 
