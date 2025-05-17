@@ -36,14 +36,14 @@ interface ExpenseRepository {
      * @param expense The expense with updated details.
      * @return Result indicating success or failure.
      */
-    suspend fun updateExpense(expense: Expense): Result<Unit>
+    suspend fun updateExpense(expense: Expense): Result<Expense>
 
     /**
      * Deletes an expense by its ID.
      * @param expenseId The ID of the expense to delete.
      * @return Result indicating success or failure.
      */
-    suspend fun deleteExpense(expenseId: String): Result<Unit>
+    suspend fun deleteExpense(expenseId: String): Result<Expense>
 
     /**
      * Clears all expenses.
