@@ -105,8 +105,7 @@ class AddExpenseViewModel(
             return // Don't proceed if client-side validation fails
         }
 
-        val currentState =
-            uiState.value // Re-fetch state in case validateInputs changed it (though it shouldn't change input values)
+        val currentState = uiState.value
         val amountDouble = currentState.amount.toDouble() // Already validated by validateInputs
 
         viewModelScope.launch {
@@ -124,7 +123,7 @@ class AddExpenseViewModel(
                 result.fold(
                     onSuccess = {
                         setState { copy(isLoading = false) }
-                        triggerSideEffect(AddExpenseContract.Effect.ExpenseSavedSuccessfully)
+                        triggerSideEffect(AddExpenseContract.Effect.ShowSnackbar("Expense saved successfully"))
                     },
                     onFailure = { exception ->
                         setState {

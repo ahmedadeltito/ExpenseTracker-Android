@@ -53,7 +53,6 @@ object AddExpenseContract {
      * Side effects that the ViewModel can trigger for the Add Expense UI.
      */
     sealed class Effect : UiSideEffect {
-        data object ExpenseSavedSuccessfully : Effect()
-        data class ShowErrorSnackbar(val message: String) : Effect()
+        data class ShowSnackbar(val message: String) : Effect()
     }
 }
