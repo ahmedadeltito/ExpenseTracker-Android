@@ -8,6 +8,7 @@ import com.ahmedadeltito.expensetracker.data.repository.ExpenseRepositoryImpl
 import com.ahmedadeltito.expensetracker.domain.repository.ExpenseRepository
 import com.ahmedadeltito.expensetracker.domain.usecase.AddExpenseUseCase
 import com.ahmedadeltito.expensetracker.domain.usecase.GetAllExpensesUseCase
+import com.ahmedadeltito.expensetracker.domain.usecase.GetExpenseByIdUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -35,13 +36,14 @@ object AppContainer {
     }
 
     // Use Cases
-    // Singleton instance for AddExpenseUseCase
     val addExpenseUseCase: AddExpenseUseCase by lazy {
         AddExpenseUseCase(expenseRepository = expenseRepository)
     }
-    // Getting all expenses use case
     val getAllExpensesUseCase: GetAllExpensesUseCase by lazy {
         GetAllExpensesUseCase(expenseRepository = expenseRepository)
+    }
+    val getExpenseByIdUseCase: GetExpenseByIdUseCase by lazy {
+        GetExpenseByIdUseCase(expenseRepository = expenseRepository)
     }
 
     fun initialize(context: Context) {

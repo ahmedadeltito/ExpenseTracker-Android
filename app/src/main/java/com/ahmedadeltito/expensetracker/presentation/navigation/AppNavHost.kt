@@ -6,6 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.ahmedadeltito.expensetracker.presentation.features.addexpense.AddExpenseRoute
+import com.ahmedadeltito.expensetracker.presentation.features.expensedetail.ExpenseDetailRoute
 import com.ahmedadeltito.expensetracker.presentation.features.expenselist.ExpenseListRoute
 
 @Composable
@@ -26,9 +27,17 @@ fun AppNavHost(
                 snackbarHostState = snackbarHostState
             )
         }
-
         composable(AppDestination.AddExpense.destination) {
             AddExpenseRoute(
+                appNavigator = appNavigator,
+                snackbarHostState = snackbarHostState
+            )
+        }
+        composable(
+            route = AppDestination.ExpenseDetail.ROUTE_WITH_ARGS,
+            arguments = AppDestination.ExpenseDetail.arguments
+        ) {
+            ExpenseDetailRoute(
                 appNavigator = appNavigator,
                 snackbarHostState = snackbarHostState
             )

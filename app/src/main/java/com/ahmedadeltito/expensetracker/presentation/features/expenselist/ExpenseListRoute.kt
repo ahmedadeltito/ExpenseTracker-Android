@@ -39,7 +39,7 @@ fun ExpenseListRoute(
                 }
 
                 is ExpenseListContract.Effect.NavigateToExpenseDetail -> {
-
+                    appNavigator.navigate(command = AppDestination.ExpenseDetail(expenseId = effect.expenseId))
                 }
 
                 is ExpenseListContract.Effect.ShowErrorMessage -> {
