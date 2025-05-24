@@ -43,7 +43,7 @@ import com.ahmedadeltito.expensetracker.ui.theme.ExpenseTrackerTheme
 @Composable
 fun ExpenseListScreen(
     state: ExpenseListContract.State,
-    onEvent: (ExpenseListContract.Event) -> Unit,
+    onEvent: (ExpenseListContract.Event) -> Unit
 ) {
     val pullRefreshState = rememberPullToRefreshState()
 

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ahmedadeltito.expensetracker.di.AppContainer
 import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination
 import com.ahmedadeltito.expensetracker.presentation.navigation.AppNavigator
+import kotlinx.coroutines.flow.collectLatest
 
 typealias ShowSnackbar = suspend (String, String?) -> Unit
 
@@ -32,7 +33,7 @@ fun ExpenseListRoute(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
+        viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
                 is ExpenseListContract.Effect.NavigateToAddExpense -> {
                     appNavigator.navigate(command = AppDestination.AddExpense)

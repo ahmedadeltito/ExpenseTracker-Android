@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ahmedadeltito.expensetracker.core.BaseViewModel
 import com.ahmedadeltito.expensetracker.domain.model.Expense
+import com.ahmedadeltito.expensetracker.domain.usecase.DeleteExpenseUseCase
 import com.ahmedadeltito.expensetracker.domain.usecase.GetExpenseByIdUseCase
 import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination // For expenseIdArg
 import kotlinx.coroutines.launch
@@ -14,7 +15,8 @@ import java.util.Locale
 
 class ExpenseDetailViewModel(
     savedStateHandle: SavedStateHandle,
-    private val getExpenseByIdUseCase: GetExpenseByIdUseCase
+    private val getExpenseByIdUseCase: GetExpenseByIdUseCase,
+    private val deleteExpenseUseCase: DeleteExpenseUseCase
 ) : BaseViewModel<ExpenseDetailContract.State, ExpenseDetailContract.Event, ExpenseDetailContract.Effect>() {
 
     private val expenseId: String =
@@ -51,7 +53,6 @@ class ExpenseDetailViewModel(
 
             ExpenseDetailContract.Event.OnDeleteClicked -> {
                 uiState.value.expense?.let { expense ->
-                    // Pass some identifiable detail for the confirmation dialog
                     val detailForDialog = "${expense.category} - ${expense.amount}"
                     triggerSideEffect(
                         ExpenseDetailContract.Effect.ShowDeleteConfirmation(
@@ -60,6 +61,10 @@ class ExpenseDetailViewModel(
                         )
                     )
                 }
+            }
+
+            is ExpenseDetailContract.Event.OnConfirmDelete -> {
+                performDelete(event.expenseId)
             }
 
             ExpenseDetailContract.Event.OnNavigateBack -> {
@@ -96,6 +101,25 @@ class ExpenseDetailViewModel(
                             expense = null
                         )
                     }
+                }
+            )
+        }
+    }
+
+    private fun performDelete(idToDelete: String) {
+        setState { copy(error = null) }
+        viewModelScope.launch {
+            val result = deleteExpenseUseCase(idToDelete)
+            result.fold(
+                onSuccess = { deletedExpense ->
+                    triggerSideEffect(
+                        ExpenseDetailContract.Effect.ExpenseDeletedSuccessfully(
+                            "Expense ${deletedExpense.toDetailUiModel().amount} - ${deletedExpense.toDetailUiModel().description}"
+                        )
+                    )
+                },
+                onFailure = { exception ->
+                    setState { copy(error = "Failed to delete expense: ${exception.message}") }
                 }
             )
         }

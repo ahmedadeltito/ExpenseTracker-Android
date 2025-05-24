@@ -28,12 +28,14 @@ object ExpenseDetailContract {
         data object OnRetryLoad : Event()
         data object OnEditClicked : Event()
         data object OnDeleteClicked : Event()
+        data class OnConfirmDelete(val expenseId: String) : Event()
         data object OnNavigateBack : Event()
     }
 
     sealed class Effect : UiSideEffect {
         data class NavigateToEditExpense(val expenseId: String) : Effect()
         data class ShowDeleteConfirmation(val expenseId: String, val expenseDetails: String) : Effect()
+        data class ExpenseDeletedSuccessfully(val message: String) : Effect() // Then navigate back
         data object NavigateBack : Effect()
     }
 }
