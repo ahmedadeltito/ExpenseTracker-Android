@@ -197,8 +197,41 @@ fun ExpenseListScreenContentPreview() {
         ExpenseListScreen(
             state = ExpenseListContract.State(
                 expenses = listOf(
-                    ExpenseListItemUiModel("1", "€10.50", "Food", "15 May 2025", "Lunch"),
-                    ExpenseListItemUiModel("2", "€25.00", "Transport", "14 May 2025", "Taxi")
+                    ExpenseListItemUiModel(
+                        id = "1",
+                        amount = "€4.50",
+                        category = "Coffee",
+                        date = "24 May 2025",
+                        description = "Flat white from Bewley's"
+                    ),
+                    ExpenseListItemUiModel(
+                        id = "2",
+                        amount = "€35.80",
+                        category = "Groceries",
+                        date = "24 May 2025",
+                        description = "Weekly shop at Tesco"
+                    ),
+                    ExpenseListItemUiModel(
+                        id = "3",
+                        amount = "€15.00",
+                        category = "Lunch",
+                        date = "23 May 2025",
+                        description = "Sandwich and a drink at a cafe"
+                    ),
+                    ExpenseListItemUiModel(
+                        id = "4",
+                        amount = "€20.00",
+                        category = "Transport",
+                        date = "22 May 2025",
+                        description = "Leap Card top-up"
+                    ),
+                    ExpenseListItemUiModel(
+                        id = "5",
+                        amount = "€8.99",
+                        category = "Entertainment",
+                        date = "21 May 2025",
+                        description = "Cinema ticket"
+                    )
                 ),
                 isLoading = false,
                 error = null,
