@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ahmedadeltito.expensetracker.di.AppContainer
@@ -74,6 +75,7 @@ fun ExpenseDetailRoute(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("Confirm Deletion") },
             text = { Text("Are you sure you want to delete this expense?\nDetails: $details") },
+            properties = DialogProperties(dismissOnClickOutside = false),
             confirmButton = {
                 TextButton(
                     onClick = {
