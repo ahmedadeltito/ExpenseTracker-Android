@@ -20,7 +20,7 @@ class ExpenseRepositoryImpl(
 ) : ExpenseRepository {
 
     override suspend fun addExpense(expense: Expense): Result<String> = withContext(ioDispatcher) {
-        delay(timeMillis = 2000)
+        delay(timeMillis = 1000)
         val cacheModel = expense.toCacheModel()
         localDataSource.add(cacheModel)
     }
@@ -30,16 +30,16 @@ class ExpenseRepositoryImpl(
             result.map { cacheModels ->
                 cacheModels.find { it.id == expenseId }?.toDomain()
             }
-        }.onStart { delay(timeMillis = 2000) }
+        }.onStart { delay(timeMillis = 1000) }
 
     override fun getAllExpenses(): Flow<Result<List<Expense>>> = localDataSource.getAll().map { result ->
         result.map { cacheModels ->
             cacheModels.toDomain()
         }
-    }.onStart { delay(timeMillis = 2000) }
+    }.onStart { delay(timeMillis = 1000) }
 
     override suspend fun updateExpense(expense: Expense): Result<Expense> = withContext(ioDispatcher) {
-        delay(timeMillis = 2000)
+        delay(timeMillis = 1000)
         val cacheModel = expense.toCacheModel()
         val updatedCacheModel = cacheModel.copy(
             lastUpdatedTimestamp = System.currentTimeMillis()
@@ -48,12 +48,12 @@ class ExpenseRepositoryImpl(
     }
 
     override suspend fun deleteExpense(expenseId: String): Result<Expense> = withContext(ioDispatcher) {
-        delay(timeMillis = 2000)
+        delay(timeMillis = 1000)
         localDataSource.deleteById(expenseId).map { it.toDomain() }
     }
 
     override suspend fun clearAllExpenses(): Result<Unit> = withContext(ioDispatcher) {
-        delay(timeMillis = 2000)
+        delay(timeMillis = 1000)
         localDataSource.clearAll()
     }
 }

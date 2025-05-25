@@ -8,16 +8,14 @@ import com.ahmedadeltito.expensetracker.core.navigation.NavigationCommand
  * Defines the navigation destinations in the app.
  */
 sealed class AppDestination(override val destination: String) : NavigationCommand {
-    data object ExpenseList : AppDestination(destination = "expense_list")
-    data object AddExpense : AppDestination(destination = "add_expense")
+    data object ExpenseList : AppDestination(destination = EXPENSE_LIST_DESTINATION)
+    data object AddExpense : AppDestination(destination = ADD_EXPENSE_DESTINATION)
     data class EditExpense(
         val expenseId: String
-    ) : AppDestination(destination = ROUTE_WITH_ARGS) {
-        override val destination: String = "add_expense/$expenseId"
-
+    ) : AppDestination(destination = "$ADD_EXPENSE_DESTINATION/$expenseId") {
         companion object {
             const val EXPENSE_ID_ARG = "expenseId"
-            const val ROUTE_WITH_ARGS = "add_expense/{$EXPENSE_ID_ARG}"
+            const val ROUTE_WITH_ARGS = "$ADD_EXPENSE_DESTINATION/{$EXPENSE_ID_ARG}"
             val arguments = listOf(
                 navArgument(EXPENSE_ID_ARG) { type = NavType.StringType }
             )
@@ -25,15 +23,19 @@ sealed class AppDestination(override val destination: String) : NavigationComman
     }
     data class ExpenseDetail(
         val expenseId: String
-    ) : AppDestination("expense_detail/{$EXPENSE_ID_ARG}") {
-        override val destination: String = "expense_detail/$expenseId"
-
+    ) : AppDestination(destination = "$EXPENSE_DETAIL_DESTINATION/$expenseId") {
         companion object {
             const val EXPENSE_ID_ARG = "expenseId"
-            const val ROUTE_WITH_ARGS = "expense_detail/{$EXPENSE_ID_ARG}"
+            const val ROUTE_WITH_ARGS = "$EXPENSE_DETAIL_DESTINATION/{$EXPENSE_ID_ARG}"
             val arguments = listOf(
                 navArgument(EXPENSE_ID_ARG) { type = NavType.StringType }
             )
         }
+    }
+
+    private companion object {
+        const val EXPENSE_LIST_DESTINATION = "expense_list"
+        const val ADD_EXPENSE_DESTINATION = "add_expense"
+        const val EXPENSE_DETAIL_DESTINATION = "expense_detail"
     }
 }

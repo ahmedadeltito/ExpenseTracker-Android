@@ -11,10 +11,3 @@ interface NavigationCommand {
     val navOptions: NavOptions? get() = null
     val navigatorExtras: Navigator.Extras? get() = null // For shared element transitions, etc.
 }
-
-/**
- * Command to navigate back.
- */
-object GoBack : NavigationCommand {
-    override val destination: String = "" // Not used for back navigation
-}

@@ -26,13 +26,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             ExpenseTrackerTheme {
                 val navController = rememberNavController()
-                val appNavigator = remember(navController) {
-                    AppNavigator(navController)
-                }
+                val appNavigator = remember(navController) { AppNavigator(navController) }
                 val snackbarHostState = remember { SnackbarHostState() }
 
                 Scaffold(
-                    snackbarHost = { SnackbarHost(snackbarHostState) }
+                    snackbarHost = { SnackbarHost(snackbarHostState) },
                 ) { innerPadding ->
                     Surface(
                         modifier = Modifier.fillMaxSize().padding(innerPadding),
