@@ -21,6 +21,7 @@ object ExpenseDetailContract {
     data class State(
         val expense: ExpenseDetailUiModel? = null,
         val isLoading: Boolean = true,
+        val isDeleting: Boolean = false,
         val error: String? = null
     ) : UiState
 

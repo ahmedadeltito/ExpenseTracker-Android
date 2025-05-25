@@ -15,7 +15,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ahmedadeltito.expensetracker.di.AppContainer
+import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination
 import com.ahmedadeltito.expensetracker.presentation.navigation.AppNavigator
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -37,10 +39,10 @@ fun ExpenseDetailRoute(
     var expenseToDeleteInfo by remember { mutableStateOf<Pair<String, String>?>(null) }
 
     LaunchedEffect(Unit) {
-        viewModel.sideEffect.collect { effect ->
+        viewModel.sideEffect.collectLatest { effect ->
             when (effect) {
                 is ExpenseDetailContract.Effect.NavigateToEditExpense -> {
-                    // appNavigator.navigateToEditExpense(effect.expenseId)
+                    appNavigator.navigate(command = AppDestination.EditExpense(expenseId = effect.expenseId))
                 }
 
                 is ExpenseDetailContract.Effect.ShowDeleteConfirmation -> {
@@ -49,10 +51,11 @@ fun ExpenseDetailRoute(
                 }
 
                 is ExpenseDetailContract.Effect.ExpenseDeletedSuccessfully -> {
+                    showDeleteDialog = false
                     scope.launch {
                         snackbarHostState.showSnackbar(
                             message = effect.message,
-                            duration = SnackbarDuration.Short
+                            duration = SnackbarDuration.Long
                         )
                     }
                     appNavigator.navigateBack()
@@ -75,14 +78,21 @@ fun ExpenseDetailRoute(
                 TextButton(
                     onClick = {
                         viewModel.onEvent(ExpenseDetailContract.Event.OnConfirmDelete(id)) // Send confirm event
-                        showDeleteDialog = false
                     },
+                    enabled = !uiState.isDeleting
                 ) {
-                    Text("Delete")
+                    if (uiState.isDeleting) {
+                        Text("Deleting...")
+                    } else {
+                        Text("Delete")
+                    }
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                TextButton(
+                    onClick = { showDeleteDialog = false },
+                    enabled = !uiState.isDeleting
+                ) { Text("Cancel") }
             }
         )
     }

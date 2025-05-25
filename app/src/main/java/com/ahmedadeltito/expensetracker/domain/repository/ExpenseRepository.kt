@@ -22,7 +22,7 @@ interface ExpenseRepository {
      * @param expenseId The ID of the expense to retrieve.
      * @return A Result containing the Expense if found, or an error.
      */
-    suspend fun getExpenseById(expenseId: String): Result<Expense?>
+    fun getExpenseById(expenseId: String): Flow<Result<Expense?>>
 
     /**
      * Retrieves all expenses as a Flow.

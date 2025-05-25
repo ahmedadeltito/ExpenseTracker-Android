@@ -6,7 +6,11 @@ import com.ahmedadeltito.expensetracker.core.BaseViewModel
 import com.ahmedadeltito.expensetracker.domain.model.Expense
 import com.ahmedadeltito.expensetracker.domain.usecase.DeleteExpenseUseCase
 import com.ahmedadeltito.expensetracker.domain.usecase.GetExpenseByIdUseCase
-import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination // For expenseIdArg
+import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
@@ -19,8 +23,7 @@ class ExpenseDetailViewModel(
     private val deleteExpenseUseCase: DeleteExpenseUseCase
 ) : BaseViewModel<ExpenseDetailContract.State, ExpenseDetailContract.Event, ExpenseDetailContract.Effect>() {
 
-    private val expenseId: String =
-        savedStateHandle.get<String>(AppDestination.ExpenseDetail.EXPENSE_ID_ARG)
+    private val expenseId: String = savedStateHandle.get<String>(AppDestination.ExpenseDetail.EXPENSE_ID_ARG)
             ?: throw IllegalStateException("Expense ID not found in SavedStateHandle. Did you pass it during navigation?")
 
     private val dateFormat = SimpleDateFormat("dd MMMM yyyy, HH:mm", Locale.getDefault())
@@ -45,7 +48,6 @@ class ExpenseDetailViewModel(
             }
 
             ExpenseDetailContract.Event.OnEditClicked -> {
-                // Ensure we have an expense ID to pass
                 uiState.value.expense?.id?.let { id ->
                     triggerSideEffect(ExpenseDetailContract.Effect.NavigateToEditExpense(id))
                 }
@@ -74,52 +76,52 @@ class ExpenseDetailViewModel(
     }
 
     private fun loadExpenseDetails() {
-        setState { copy(isLoading = true, error = null) }
-        viewModelScope.launch {
-            val result = getExpenseByIdUseCase(expenseId)
-            result.fold(
-                onSuccess = { domainExpense ->
-                    if (domainExpense != null) {
-                        setState {
-                            copy(
-                                isLoading = false,
-                                expense = domainExpense.toDetailUiModel(),
-                                error = null
-                            )
+        getExpenseByIdUseCase(expenseId)
+            .onStart { setState { copy(isLoading = true, isDeleting = false, error = null) } }
+            .onEach { result ->
+                result.fold(
+                    onSuccess = { domainExpense ->
+                        if (domainExpense != null) {
+                            setState {
+                                copy(isLoading = false, expense = domainExpense.toDetailUiModel(), error = null)
+                            }
+                        } else {
+                            setState {
+                                copy(isLoading = false, error = "Expense not found.", expense = null)
+                            }
                         }
-                    } else {
+                    },
+                    onFailure = { exception ->
                         setState {
-                            copy(isLoading = false, error = "Expense not found.", expense = null)
+                            copy(isLoading = false, error = "Failed to load expense: ${exception.message}", expense = null)
                         }
                     }
-                },
-                onFailure = { exception ->
-                    setState {
-                        copy(
-                            isLoading = false,
-                            error = "Failed to load expense: ${exception.message}",
-                            expense = null
-                        )
-                    }
+                )
+            }
+            .catch { exception ->
+                setState {
+                    copy(isLoading = false, error = "An unexpected error occurred: ${exception.message}", expense = null)
                 }
-            )
-        }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun performDelete(idToDelete: String) {
-        setState { copy(error = null) }
+        setState { copy(error = null, isDeleting = true) }
         viewModelScope.launch {
             val result = deleteExpenseUseCase(idToDelete)
             result.fold(
                 onSuccess = { deletedExpense ->
+                    val deletedExpenseUiModel = deletedExpense.toDetailUiModel()
+                    setState { copy(isDeleting = false) }
                     triggerSideEffect(
                         ExpenseDetailContract.Effect.ExpenseDeletedSuccessfully(
-                            "Expense ${deletedExpense.toDetailUiModel().amount} - ${deletedExpense.toDetailUiModel().description}"
+                            "Expense ${deletedExpenseUiModel.amount} - ${deletedExpenseUiModel.description ?: deletedExpenseUiModel.category}"
                         )
                     )
                 },
                 onFailure = { exception ->
-                    setState { copy(error = "Failed to delete expense: ${exception.message}") }
+                    setState { copy(isDeleting = false, error = "Failed to delete expense: ${exception.message}") }
                 }
             )
         }

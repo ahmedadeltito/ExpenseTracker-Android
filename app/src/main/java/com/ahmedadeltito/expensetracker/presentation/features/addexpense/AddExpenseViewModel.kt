@@ -1,14 +1,38 @@
 package com.ahmedadeltito.expensetracker.presentation.features.addexpense
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.ahmedadeltito.expensetracker.core.BaseViewModel
+import com.ahmedadeltito.expensetracker.domain.model.Expense
 import com.ahmedadeltito.expensetracker.domain.usecase.AddExpenseUseCase
+import com.ahmedadeltito.expensetracker.domain.usecase.GetExpenseByIdUseCase
+import com.ahmedadeltito.expensetracker.domain.usecase.UpdateExpenseUseCase
+import com.ahmedadeltito.expensetracker.presentation.navigation.AppDestination
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.util.UUID
 
 class AddExpenseViewModel(
-    private val addExpenseUseCase: AddExpenseUseCase
+    savedStateHandle: SavedStateHandle,
+    private val addExpenseUseCase: AddExpenseUseCase,
+    private val getExpenseByIdUseCase: GetExpenseByIdUseCase,
+    private val updateExpenseUseCase: UpdateExpenseUseCase
 ) : BaseViewModel<AddExpenseContract.State, AddExpenseContract.Event, AddExpenseContract.Effect>() {
+
+    private val expenseId: String? = savedStateHandle.get<String>(AppDestination.EditExpense.EXPENSE_ID_ARG)
+
+    init {
+        if (expenseId != null) {
+            setState { copy(isEditMode = true, screenTitle = "Edit Expense", expenseId = this@AddExpenseViewModel.expenseId) }
+            loadExpenseForEditing(expenseId)
+        } else {
+            setState { copy(isEditMode = false, screenTitle = "Add Expense") }
+        }
+    }
 
     override fun createInitialState(): AddExpenseContract.State {
         return AddExpenseContract.State(date = Date())
@@ -16,57 +40,130 @@ class AddExpenseViewModel(
 
     override fun handleEvent(event: AddExpenseContract.Event) {
         when (event) {
-            is AddExpenseContract.Event.OnAmountChange -> {
-                setState { copy(amount = event.amount, amountError = null, error = null) }
+            is AddExpenseContract.Event.OnAmountChange -> setState {
+                copy(
+                    amount = event.amount,
+                    amountError = null,
+                    error = null
+                )
             }
-
-            is AddExpenseContract.Event.OnCategoryChange -> {
-                setState { copy(category = event.category, categoryError = null, error = null) }
+            is AddExpenseContract.Event.OnCategoryChange -> setState {
+                copy(
+                    category = event.category,
+                    categoryError = null,
+                    error = null
+                )
             }
-
-            is AddExpenseContract.Event.OnDescriptionChange -> {
-                setState { copy(description = event.description, error = null) }
+            is AddExpenseContract.Event.OnDescriptionChange -> setState {
+                copy(
+                    description = event.description,
+                    error = null
+                )
             }
-
-            is AddExpenseContract.Event.OnDateChange -> {
-                setState { copy(date = event.date, error = null) }
+            is AddExpenseContract.Event.OnDateChange -> setState {
+                copy(
+                    date = event.date,
+                    error = null
+                )
             }
-
-            is AddExpenseContract.Event.OnCurrencyChange -> {
-                setState {
-                    copy(
-                        currencyCode = event.currency.uppercase(),
-                        currencyError = null,
-                        error = null
-                    )
-                }
+            is AddExpenseContract.Event.OnCurrencyChange -> setState {
+                copy(
+                    currencyCode = event.currency.uppercase(),
+                    currencyError = null,
+                    error = null
+                )
             }
-
-            AddExpenseContract.Event.OnSaveClick -> {
-                saveExpense()
-            }
-
-            AddExpenseContract.Event.OnBackClick -> {
-                triggerSideEffect(AddExpenseContract.Effect.NavigateToBackScreen)
-            }
-
-            AddExpenseContract.Event.OnDismissError -> {
-                setState {
-                    copy(
-                        error = null,
-                        amountError = null,
-                        categoryError = null,
-                        currencyError = null
-                    )
-                }
+            AddExpenseContract.Event.OnSaveClick -> saveOrUpdateExpense()
+            AddExpenseContract.Event.OnBackClick -> triggerSideEffect(
+                effect = AddExpenseContract.Effect.NavigateToBackScreen
+            )
+            AddExpenseContract.Event.OnDismissError -> setState {
+                copy(
+                    error = null,
+                    amountError = null,
+                    categoryError = null,
+                    currencyError = null
+                )
             }
         }
     }
 
-    /**
-     * Validates the current form inputs and updates the UI state with any errors.
-     * @return true if all inputs are valid, false otherwise.
-     */
+    private fun loadExpenseForEditing(id: String) {
+        getExpenseByIdUseCase(id).
+            onStart { setState { copy(isLoadingExpense = true) } }
+            .onEach { result ->
+                result.fold(
+                    onSuccess = { expense ->
+                        if (expense != null) {
+                            setState {
+                                copy(
+                                    isLoadingExpense = false,
+                                    amount = expense.amount.toString(),
+                                    category = expense.category,
+                                    description = expense.description ?: "",
+                                    date = expense.date,
+                                    currencyCode = expense.currencyCode
+                                )
+                            }
+                        } else {
+                            setState {
+                                copy(
+                                    isLoadingExpense = false,
+                                    error = "Failed to load expense details."
+                                )
+                            }
+                        }
+                    },
+                    onFailure = {
+                        setState {
+                            copy(
+                                isLoadingExpense = false,
+                                error = "Failed to load expense details."
+                            )
+                        }
+                    }
+                )
+            }
+            .catch { exception ->
+                setState {
+                    copy(isLoadingExpense = false, error = "An unexpected error occurred: ${exception.message}")
+                }
+            }
+            .launchIn(scope = viewModelScope)
+
+    }
+
+    private fun saveOrUpdateExpense() {
+        if (!validateInputs()) {
+            return
+        }
+        val currentState = uiState.value
+
+        if (currentState.isEditMode && currentState.expenseId?.isNotBlank() == true) {
+            val expenseToUpdate = Expense(
+                id = currentState.expenseId,
+                amount = currentState.amount.toDouble(),
+                category = currentState.category,
+                description = currentState.description.takeIf { it.isNotBlank() },
+                date = currentState.date,
+                currencyCode = currentState.currencyCode,
+                creationTimestamp = System.currentTimeMillis()
+            )
+            performUpdate(expenseToUpdate)
+        } else {
+            val expenseToAdd = Expense(
+                id = UUID.randomUUID().toString(),
+                amount = currentState.amount.toDouble(),
+                category = currentState.category,
+                description = currentState.description.takeIf { it.isNotBlank() },
+                date = currentState.date,
+                currencyCode = currentState.currencyCode,
+                creationTimestamp = System.currentTimeMillis()
+            )
+            performAdd(expenseToAdd)
+        }
+    }
+
     private fun validateInputs(): Boolean {
         val currentState = uiState.value
         var isValid = true
@@ -104,49 +201,33 @@ class AddExpenseViewModel(
         return isValid
     }
 
-    private fun saveExpense() {
-        if (!validateInputs()) {
-            return // Don't proceed if client-side validation fails
-        }
-
-        val currentState = uiState.value
-        val amountDouble = currentState.amount.toDouble() // Already validated by validateInputs
-
+    private fun performAdd(expense: Expense) {
+        setState { copy(isLoading = true, error = null) }
         viewModelScope.launch {
-            setState { copy(isLoading = true, error = null) } // Set loading state
-
-            try {
-                val result = addExpenseUseCase(
-                    amount = amountDouble,
-                    category = currentState.category,
-                    description = currentState.description.takeIf { it.isNotBlank() },
-                    date = currentState.date,
-                    currencyCode = currentState.currencyCode
-                )
-
-                result.fold(
-                    onSuccess = {
-                        setState { copy(isLoading = false) }
-                        triggerSideEffect(AddExpenseContract.Effect.ExpenseSavedSuccessfully)
-                    },
-                    onFailure = { exception ->
-                        setState {
-                            copy(
-                                isLoading = false,
-                                error = "Failed to save expense: ${exception.message}"
-                            )
-                        }
-                    }
-                )
-
-            } catch (e: Exception) {
-                setState {
-                    copy(
-                        isLoading = false,
-                        error = "An unexpected error occurred: ${e.localizedMessage}"
-                    )
+            addExpenseUseCase(expense).fold(
+                onSuccess = {
+                    setState { copy(isLoading = false) }
+                    triggerSideEffect(AddExpenseContract.Effect.ExpenseSavedSuccessfully)
+                },
+                onFailure = {
+                    setState { copy(isLoading = false, error = "Failed to save expense.") }
                 }
-            }
+            )
+        }
+    }
+
+    private fun performUpdate(expense: Expense) {
+        setState { copy(isLoading = true, error = null) }
+        viewModelScope.launch {
+            updateExpenseUseCase(expense).fold(
+                onSuccess = {
+                    setState { copy(isLoading = false) }
+                    triggerSideEffect(AddExpenseContract.Effect.ExpenseUpdatedSuccessfully)
+                },
+                onFailure = {
+                    setState { copy(isLoading = false, error = "Failed to update expense.") }
+                }
+            )
         }
     }
 }

@@ -19,13 +19,9 @@ import kotlinx.coroutines.launch
  */
 abstract class BaseViewModel<S : UiState, E : UiEvent, F : UiSideEffect> : ViewModel() {
 
-    // Backing property for UiState, initialized with createInitialState()
     private val _uiState: MutableStateFlow<S> by lazy { MutableStateFlow(createInitialState()) }
     val uiState: StateFlow<S> = _uiState.asStateFlow()
 
-    // Channel for UiSideEffects. Channels are good for one-time events.
-    // Alternatively, MutableSharedFlow can be used.
-    // Using Channel for single-shot events ensuring each event is consumed at most once by one collector.
     private val _sideEffect: Channel<F> = Channel(Channel.CONFLATED)
     val sideEffect: Flow<F> = _sideEffect.receiveAsFlow()
 
@@ -60,8 +56,6 @@ abstract class BaseViewModel<S : UiState, E : UiEvent, F : UiSideEffect> : ViewM
      * It launches a new coroutine in viewModelScope to send the effect.
      */
     protected fun triggerSideEffect(effect: F) {
-        viewModelScope.launch {
-            _sideEffect.send(effect)
-        }
+        viewModelScope.launch { _sideEffect.send(effect) }
     }
 }

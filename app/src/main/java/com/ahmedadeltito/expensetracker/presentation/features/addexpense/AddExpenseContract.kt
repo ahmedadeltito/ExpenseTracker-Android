@@ -23,6 +23,11 @@ object AddExpenseContract {
      */
     @Immutable
     data class State(
+        val expenseId: String? = null,
+        val isEditMode: Boolean = false,
+        val screenTitle: String = "Add Expense",
+        val isLoadingExpense: Boolean = false,
+
         val amount: String = "",
         val category: String = "",
         val description: String = "",
@@ -54,6 +59,7 @@ object AddExpenseContract {
      */
     sealed class Effect : UiSideEffect {
         data object NavigateToBackScreen : Effect()
+        object ExpenseUpdatedSuccessfully : Effect()
         data object ExpenseSavedSuccessfully : Effect()
     }
 }

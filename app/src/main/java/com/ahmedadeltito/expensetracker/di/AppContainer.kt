@@ -10,6 +10,7 @@ import com.ahmedadeltito.expensetracker.domain.usecase.AddExpenseUseCase
 import com.ahmedadeltito.expensetracker.domain.usecase.DeleteExpenseUseCase
 import com.ahmedadeltito.expensetracker.domain.usecase.GetAllExpensesUseCase
 import com.ahmedadeltito.expensetracker.domain.usecase.GetExpenseByIdUseCase
+import com.ahmedadeltito.expensetracker.domain.usecase.UpdateExpenseUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
@@ -48,6 +49,9 @@ object AppContainer {
     }
     val deleteExpenseUseCase: DeleteExpenseUseCase by lazy {
         DeleteExpenseUseCase(expenseRepository = expenseRepository)
+    }
+    val updateExpenseUseCase: UpdateExpenseUseCase by lazy {
+        UpdateExpenseUseCase(expenseRepository = expenseRepository)
     }
 
     fun initialize(context: Context) {

@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import android.widget.DatePicker
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -73,7 +74,7 @@ fun AddExpenseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Add Expense") },
+                title = { Text(state.screenTitle) },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(AddExpenseContract.Event.OnBackClick) }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -82,94 +83,103 @@ fun AddExpenseScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(16.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()), // Make the column scrollable
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            if (state.error != null) {
-                Text(
-                    text = state.error,
-                    color = MaterialTheme.colorScheme.error,
+            if (state.isLoadingExpense) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            } else {
+                Column(
                     modifier = Modifier
-                        .padding(bottom = 8.dp)
-                        .clickable { onEvent(AddExpenseContract.Event.OnDismissError) }
-                )
-            }
+                        .padding(16.dp)
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (state.error != null) {
+                        Text(
+                            text = state.error,
+                            color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier
+                                .padding(bottom = 8.dp)
+                                .clickable { onEvent(AddExpenseContract.Event.OnDismissError) }
+                        )
+                    }
 
-            OutlinedTextField(
-                value = state.amount,
-                onValueChange = { onEvent(AddExpenseContract.Event.OnAmountChange(it)) },
-                label = { Text("Amount") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                isError = state.amountError != null,
-                supportingText = { if (state.amountError != null) Text(state.amountError) }
-            )
-
-            OutlinedTextField(
-                value = state.category,
-                onValueChange = { onEvent(AddExpenseContract.Event.OnCategoryChange(it)) },
-                label = { Text("Category") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth(),
-                isError = state.categoryError != null,
-                supportingText = { if (state.categoryError != null) Text(state.categoryError) }
-            )
-
-            OutlinedTextField(
-                value = state.description,
-                onValueChange = { onEvent(AddExpenseContract.Event.OnDescriptionChange(it)) },
-                label = { Text("Description (Optional)") },
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3
-            )
-
-            OutlinedTextField(
-                value = dateFormatter.format(state.date),
-                onValueChange = { /* Read-only, changed by dialog */ },
-                label = { Text("Date") },
-                readOnly = true,
-                trailingIcon = {
-                    Icon(
-                        Icons.Filled.DateRange,
-                        contentDescription = "Select Date",
-                        modifier = Modifier.clickable { datePickerDialog.show() }
+                    OutlinedTextField(
+                        value = state.amount,
+                        onValueChange = { onEvent(AddExpenseContract.Event.OnAmountChange(it)) },
+                        label = { Text("Amount") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = state.amountError != null,
+                        supportingText = { if (state.amountError != null) Text(state.amountError) }
                     )
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
 
-            OutlinedTextField(
-                value = state.currencyCode,
-                onValueChange = { onEvent(AddExpenseContract.Event.OnCurrencyChange(it)) },
-                label = { Text("Currency Code (e.g., USD)") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
-                modifier = Modifier.fillMaxWidth(),
-                isError = state.currencyError != null,
-                supportingText = { if (state.currencyError != null) Text(state.currencyError) }
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { onEvent(AddExpenseContract.Event.OnSaveClick) },
-                enabled = !state.isLoading,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary
+                    OutlinedTextField(
+                        value = state.category,
+                        onValueChange = { onEvent(AddExpenseContract.Event.OnCategoryChange(it)) },
+                        label = { Text("Category") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = state.categoryError != null,
+                        supportingText = { if (state.categoryError != null) Text(state.categoryError) }
                     )
-                } else {
-                    Text("Save Expense")
+
+                    OutlinedTextField(
+                        value = state.description,
+                        onValueChange = { onEvent(AddExpenseContract.Event.OnDescriptionChange(it)) },
+                        label = { Text("Description (Optional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3
+                    )
+
+                    OutlinedTextField(
+                        value = dateFormatter.format(state.date),
+                        onValueChange = { /* Read-only, changed by dialog */ },
+                        label = { Text("Date") },
+                        readOnly = true,
+                        trailingIcon = {
+                            Icon(
+                                Icons.Filled.DateRange,
+                                contentDescription = "Select Date",
+                                modifier = Modifier.clickable { datePickerDialog.show() }
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    OutlinedTextField(
+                        value = state.currencyCode,
+                        onValueChange = { onEvent(AddExpenseContract.Event.OnCurrencyChange(it)) },
+                        label = { Text("Currency Code (e.g., USD)") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Characters),
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = state.currencyError != null,
+                        supportingText = { if (state.currencyError != null) Text(state.currencyError) }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = { onEvent(AddExpenseContract.Event.OnSaveClick) },
+                        enabled = !state.isLoading,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        if (state.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                        } else {
+                            Text(text = if (state.isEditMode) "Edit Expense" else "Save Expense")
+                        }
+                    }
                 }
             }
         }
@@ -203,6 +213,38 @@ fun AddExpenseScreenLoadingPreview() {
     ExpenseTrackerTheme {
         AddExpenseScreen(
             state = AddExpenseContract.State(isLoading = true),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true, name = "Edit Expense Screen")
+@Composable
+fun AddExpenseScreenEditModePreview() {
+    ExpenseTrackerTheme {
+        AddExpenseScreen(
+            state = AddExpenseContract.State(
+                isEditMode = true,
+                screenTitle = "Edit Expense",
+                amount = "123.45",
+                category = "Groceries"
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+// Preview for when loading details in edit mode
+@Preview(showBackground = true, name = "Edit Expense Loading Details")
+@Composable
+fun AddExpenseScreenLoadingDetailsPreview() {
+    ExpenseTrackerTheme {
+        AddExpenseScreen(
+            state = AddExpenseContract.State(
+                isEditMode = true,
+                screenTitle = "Edit Expense",
+                isLoadingExpense = true
+            ),
             onEvent = {}
         )
     }

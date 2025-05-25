@@ -34,6 +34,15 @@ fun AppNavHost(
             )
         }
         composable(
+            AppDestination.EditExpense.ROUTE_WITH_ARGS,
+            arguments = AppDestination.ExpenseDetail.arguments
+        ) {
+            AddExpenseRoute(
+                appNavigator = appNavigator,
+                snackbarHostState = snackbarHostState
+            )
+        }
+        composable(
             route = AppDestination.ExpenseDetail.ROUTE_WITH_ARGS,
             arguments = AppDestination.ExpenseDetail.arguments
         ) {
