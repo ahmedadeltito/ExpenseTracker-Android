@@ -17,8 +17,6 @@ import kotlinx.coroutines.Dispatchers
 object AppContainer {
     // Dispatchers
     private val ioDispatcher: CoroutineDispatcher by lazy { Dispatchers.IO }
-    val mainDispatcher: CoroutineDispatcher by lazy { Dispatchers.Main }
-    val defaultDispatcher: CoroutineDispatcher by lazy { Dispatchers.Default }
 
     private var applicationContext: Context? = null
 

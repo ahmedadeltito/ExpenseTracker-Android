@@ -7,6 +7,6 @@ class ExpenseTrackerApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        AppContainer.initialize(this)
+        AppContainer.initialize(context = this)
     }
 }
