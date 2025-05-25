@@ -15,7 +15,7 @@ Expense Tracker is designed to be a robust tool for managing personal finances. 
 
 | Expense List Screen | Add/Edit Expense Screen | Expense Detail Screen |
 | :---: |:---:|:---:|
-| `[Screenshot of Expense List]` | `[Screenshot of Add Expense]` | `[Screenshot of Expense Detail]` |
+| <img src="https://github.com/ahmedadeltito/ExpenseTracker/blob/main/screenshots/my_expenses_screen.png" alt="my_expenses_screen" width="400"/> | <img src="https://github.com/ahmedadeltito/ExpenseTracker/blob/main/screenshots/add_expense.png" alt="add_expense" width="200"/> <img src="https://github.com/ahmedadeltito/ExpenseTracker/blob/main/screenshots/edit_expenses.png" alt="edit_expenses" width="200"/> | <img src="https://github.com/ahmedadeltito/ExpenseTracker/blob/main/screenshots/expenses_details.png" alt ="expenses_details" width="400"/> |
 
 ## 🚀 Key Features
 
@@ -29,7 +29,8 @@ Expense Tracker is designed to be a robust tool for managing personal finances. 
 
 This project strictly follows **Clean Architecture** principles, combined with modern Android development patterns.
 
-![Clean Architecture Diagram](https://user-images.githubusercontent.com/11275995/226123495-25d2c645-3677-44da-81e8-7180e53a793a.png)
+![Clean Architecture Diagram](https://fernandocejas.com/assets/img/blog/android_architecture_reloaded_main.png)
+
 *(Image credit: Fernando Cejas)*
 
 ### Layers
@@ -72,6 +73,7 @@ This project strictly follows **Clean Architecture** principles, combined with m
 
 ## 📂 Project Structure
 
+```
 └── app/src/main/java/com/yourname/expensetracker/
 ├── core/                # Base classes, UDF interfaces, navigation core
 ├── data/                # Data layer
@@ -84,11 +86,12 @@ This project strictly follows **Clean Architecture** principles, combined with m
 │   ├── repository/      # Repository interfaces
 │   └── usecase/         # Business logic use cases
 └── presentation/        # Presentation layer (UI)
-├── features/        # Feature-specific screens (e.g., addexpense, expenselist)
+├── features/            # Feature-specific screens (e.g., addexpense, expenselist)
 │   ├── addexpense/
 │   └── expenselist/
-├── navigation/      # AppDestinations, AppNavigator, AppNavHost
-└── ui/                # General UI components, Theme
+├── navigation/          # AppDestinations, AppNavigator, AppNavHost
+└── ui/                  # General UI components, Theme
+```
 
 ## 🏃 How to Build and Run
 
@@ -113,4 +116,4 @@ This project is a living example and has plenty of room for growth. Here are som
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/ahmedadeltito/ExpenseTracker/blob/develop/LICENSE) file for details.
